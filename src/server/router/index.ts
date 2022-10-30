@@ -1,14 +1,16 @@
 // src/server/router/index.ts
 import { createRouter } from "./context";
 import superjson from "superjson";
-import { writeupsRouter } from "./writeups";
+import { postsRouter } from "./posts";
+import { tagsRouter } from "./tags";
 
 // import { exampleRouter } from "./example";
 // import { protectedExampleRouter } from "./protected-example-router";
 
 export const appRouter = createRouter()
   .transformer(superjson)
-  .merge("writeups.", writeupsRouter);
+  .merge("posts.", postsRouter)
+  .merge("tags.", tagsRouter);
 // .merge("example.", exampleRouter)
 // .merge("auth.", protectedExampleRouter);
 

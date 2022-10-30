@@ -51,9 +51,9 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    // writeups      Writeup[]
     comments      Comment[]
     userName      String?   @unique
+    posts         Post[]
 
     @@unique([id, userName])
 }
@@ -67,39 +67,60 @@ model VerificationToken {
 }
 
 model MediaItem {
-    id        String @id @default(cuid())
+    id        String           @id @default(cuid())
     title     String
     creator   String
     mediaType String
-    // writeups  Writeup[]
-    // tags      Tag[]
+    posts     PostMediaItems[]
 
     @@unique([title, creator, mediaType])
 }
 
-model Writeup {
-    id          String   @id @default(cuid())
-    title       String
-    mainContent String   @db.LongText
-    createdAt   DateTime @default(now())
-    // mediaItemId String
-    // mediaItem   MediaItem @relation(fields: [mediaItemId], references: [id])
-    // userId      String
-    // user        User     @relation(fields: [userId], references: [id])
-    // tags        Tag[]
+model PostMediaItems {
+    id          String     @id @default(cuid())
+    post        Post?      @relation(fields: [postId], references: [id])
+    postId      String?
+    mediaItem   MediaItem? @relation(fields: [mediaItemId], references: [id])
+    mediaItemId String?
+
+    @@unique([postId, mediaItemId])
 }
 
-// model Tag {
-//     id         String      @id @default(cuid())
-//     tagName    String      @unique
-//     writeups   Writeup[]
-//     mediaItems MediaItem[]
-// }
+model Post {
+    id          String           @id @default(cuid())
+    title       String
+    mainContent String           @db.LongText
+    createdAt   DateTime         @default(now())
+    mediaItems  PostMediaItems[]
+    userId      String
+    user        User             @relation(fields: [userId], references: [id])
+    tags        PostTags[]
+    comments    Comment[]
+}
+
+model PostTags {
+    id     String @id @default(cuid())
+    post   Post   @relation(fields: [postId], references: [id])
+    tag    Tag    @relation(fields: [tagId], references: [id])
+    postId String
+    tagId  String
+
+    @@unique([postId, tagId])
+}
+
+model Tag {
+    id      String     @id @default(cuid())
+    tagName String     @unique
+    posts   PostTags[]
+    // mediaItems MediaItem[]
+}
 
 model Comment {
     id          String   @id @default(cuid())
-    userId      String
-    user        User     @relation(fields: [userId], references: [id])
     commentText String
     createdAt   DateTime @default(now())
+    userId      String
+    user        User     @relation(fields: [userId], references: [id])
+    Post        Post?    @relation(fields: [postId], references: [id])
+    postId      String?
 }

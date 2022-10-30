@@ -18,6 +18,7 @@ export default function NewWriteupForm() {
         postWriteup.mutate({
           title,
           mainContent,
+          tags,
         });
 
         setTitle("");
