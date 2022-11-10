@@ -135,4 +135,27 @@ export const postsRouter = createRouter()
         console.log(error);
       }
     },
+  })
+  .query("findUserPosts", {
+    async resolve({ ctx }) {
+      try {
+        const session = await ctx.session;
+        if (!session) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+          });
+        }
+
+        const { user } = session;
+        return await ctx.prisma.post.findMany({
+          where: { user: user },
+          include: { tags: { include: { tag: true } } },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+      } catch (error) {
+        console.log("error", error);
+      }
+    },
   });

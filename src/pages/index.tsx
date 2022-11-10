@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 
 const Posts = () => {
   const { data: posts, isLoading } = trpc.useQuery(["posts.getAll"]);
-  const { data: tags } = trpc.useQuery(["tags.getAll"]);
+  // const { data: tags } = trpc.useQuery(["tags.getAll"]);
 
   if (isLoading) return <div>Fetching Entries...</div>;
 
