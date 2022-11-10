@@ -1,5 +1,6 @@
 // import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { trpc } from "../utils/trpc";
 import { signIn, signOut, useSession } from "next-auth/react";
 // import NewPostForm from "../components/NewPostForm";
@@ -122,6 +123,10 @@ const Home = () => {
           <div>
             <p>Hi {session.user?.name}</p>
 
+            <Link href="/myPosts">
+              <p>My Posts</p>
+            </Link>
+            <p>My Profile</p>
             <button onClick={() => signOut()}>Logout</button>
             <form
               className="flex flex-col gap-4"
@@ -145,9 +150,7 @@ const Home = () => {
                   m.forEach((match, groupIndex) => {
                     console.log(`Found match, group ${groupIndex}: ${match}`);
 
-                    const formattedMatch = match
-                      .toLowerCase()
-                      .split("#")[1] as string;
+                    const formattedMatch = match.split("#")[1] as string;
                     console.log("formattedMatch: ", formattedMatch);
                     const formattedTag: FormattedTag = {
                       tag: {
