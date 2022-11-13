@@ -262,13 +262,15 @@ export default function MyPosts() {
                 }}
               /> */}
             <div className="flex gap-4 justify-center">
-              <button type="submit" className="btn btn-success">
-                Update
+              <button type="submit">
+                <label htmlFor="my-modal-2" className="btn btn-success">
+                  Update
+                </label>
               </button>
 
-              <a href="#" className="btn btn-error">
+              <label htmlFor="my-modal-2" className="btn btn-error">
                 Cancel
-              </a>
+              </label>
             </div>
           </form>
         </label>
