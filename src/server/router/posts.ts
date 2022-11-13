@@ -1,8 +1,10 @@
 // import { resolve } from "path";
 import { TRPCError } from "@trpc/server";
+import { resolve } from "path";
 // import { nanoid } from "nanoid";
 import { z } from "zod";
 import { createRouter } from "./context";
+import { tagsRouter } from "./tags";
 // import { tagsRouter } from "./tags";
 
 export const postsRouter = createRouter()
@@ -32,6 +34,73 @@ export const postsRouter = createRouter()
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next();
+  })
+  .mutation("updatePost", {
+    input: z.object({
+      id: z.string(),
+      title: z.string(),
+      mainContent: z.string(),
+      formattedMediaItemsArr: z
+        .object({
+          mediaItem: z.object({
+            connectOrCreate: z.object({
+              where: z.object({
+                title: z.string(),
+                creator: z.string(),
+                mediaType: z.string(),
+              }),
+              create: z.object({
+                title: z.string(),
+                creator: z.string(),
+                mediaType: z.string(),
+              }),
+            }),
+          }),
+        })
+        .array(),
+      formattedTagArr: z
+        .object({
+          tag: z.object({
+            connectOrCreate: z.object({
+              where: z.object({ tagName: z.string() }),
+              create: z.object({ tagName: z.string() }),
+            }),
+          }),
+        })
+        .array(),
+    }),
+    async resolve({ ctx, input }) {
+      try {
+        const session = await ctx.session;
+        if (!session) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+          });
+        }
+
+        const { user } = session;
+
+        return await ctx.prisma.post.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            title: input.title,
+            mainContent: input.mainContent,
+            user: { connect: { id: user?.id } },
+            mediaItems: {
+              create: input.formattedMediaItemsArr,
+            },
+            tags: {
+              create: input.formattedTagArr,
+            },
+          },
+          include: { tags: { include: { tag: true } } },
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
   })
   .mutation("postNewPost", {
     input: z.object({
@@ -156,6 +225,32 @@ export const postsRouter = createRouter()
         });
       } catch (error) {
         console.log("error", error);
+      }
+    },
+  })
+  .query("findSinglePost", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      try {
+        const session = await ctx.session;
+        if (!session) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+          });
+        }
+        return await ctx.prisma.post.findUnique({
+          where: {
+            id: input.id,
+          },
+          select: {
+            mainContent: true,
+            title: true,
+          },
+        });
+      } catch (error) {
+        console.log(error);
       }
     },
   });

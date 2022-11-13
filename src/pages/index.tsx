@@ -4,7 +4,7 @@ import Link from "next/link";
 import { trpc } from "../utils/trpc";
 import { signIn, signOut, useSession } from "next-auth/react";
 // import NewPostForm from "../components/NewPostForm";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 // import { tagsRouter } from "../server/router/tags";
 // import { useQueries } from "react-query";
 
@@ -55,7 +55,7 @@ const Posts = () => {
 
 const Home = () => {
   const { data: session, status } = useSession();
-  const { data: tags } = trpc.useQuery(["tags.getAll"]);
+  // const { data: tags } = trpc.useQuery(["tags.getAll"]);
   const [title, setTitle] = useState("");
   const [mainContent, setMainContent] = useState("");
   interface FormattedTag {
@@ -75,7 +75,8 @@ const Home = () => {
       };
     };
   }
-  const [existingTags, setExistingTags] = useState<string[]>([]);
+
+  // for optimistic update upon creating a post
   const ctx = trpc.useContext();
   const postNewPost = trpc.useMutation("posts.postNewPost", {
     onMutate: () => {
@@ -93,16 +94,17 @@ const Home = () => {
 
   // extracts the tagName from each tag object and adds the array to state
   // will run whenever tags in the db changes.
-  useEffect(() => {
-    if (tags) {
-      const existingTagNames = [];
-      for (const tag of tags) {
-        const tagName = tag.tagName;
-        existingTagNames.push(tagName);
-      }
-      setExistingTags(existingTagNames);
-    }
-  }, [tags?.length]);
+  // useEffect(() => {
+  //   if (tags) {
+  //     const existingTagNames = [];
+  //     for (const tag of tags) {
+  //       const tagName = tag.tagName;
+  //       existingTagNames.push(tagName);
+  //     }
+  //     setExistingTags(existingTagNames);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [tags?.length]);
 
   const tagRegex = new RegExp("[#]\\w+", "gm");
 
